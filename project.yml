@@ -1,0 +1,27 @@
+name: RailsOfTheWorld
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    macOS: 13.0
+settings:
+  base:
+    PRODUCT_BUNDLE_IDENTIFIER: com.example.railsoftheworld
+    INFOPLIST_FILE: Info.plist
+    CODE_SIGNING_ALLOWED: NO
+    CODE_SIGNING_REQUIRED: NO
+targets:
+  RailsOfTheWorld:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+    settings:
+      base:
+        PRODUCT_NAME: RailsOfTheWorld
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 0.1.0
+        SWIFT_VERSION: 5.0
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+    info:
+      path: Info.plist

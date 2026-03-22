@@ -1,0 +1,44 @@
+name: build-macos
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build app (unsigned)
+        run: |
+          xcodebuild \
+            -project RailsOfTheWorld.xcodeproj \
+            -scheme RailsOfTheWorld \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: Package app
+        run: |
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -type d -name 'RailsOfTheWorld.app' | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "App not found" && exit 1
+          fi
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" RailsOfTheWorld.app.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RailsOfTheWorld-macOS
+          path: RailsOfTheWorld.app.zip
