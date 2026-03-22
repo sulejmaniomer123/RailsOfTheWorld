@@ -20,14 +20,16 @@ jobs:
 
       - name: Build app (unsigned)
         run: |
+          set -o pipefail
           xcodebuild \
             -project RailsOfTheWorld.xcodeproj \
             -scheme RailsOfTheWorld \
             -configuration Release \
             -destination 'generic/platform=macOS' \
+            -showBuildTimingSummary \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            build
+            build | tee xcodebuild.log
 
       - name: Package app
         run: |
@@ -42,3 +44,10 @@ jobs:
         with:
           name: RailsOfTheWorld-macOS
           path: RailsOfTheWorld.app.zip
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: xcodebuild.log
