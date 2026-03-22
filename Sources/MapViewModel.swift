@@ -33,7 +33,7 @@ final class MapViewModel: ObservableObject {
         }
 
         searchTask?.cancel()
-        searchTask = Task { @MainActor [weak self] in
+        searchTask = Task { [weak self] @MainActor in
             guard let self else { return }
             do {
                 let results = try await Network.nominatimSearch(query: trimmed)
@@ -58,7 +58,7 @@ final class MapViewModel: ObservableObject {
 
     func requestStations(near coordinate: CLLocationCoordinate2D) {
         stationTask?.cancel()
-        stationTask = Task { @MainActor [weak self] in
+        stationTask = Task { [weak self] @MainActor in
             guard let self else { return }
             try? await Task.sleep(nanoseconds: 500_000_000)
 
