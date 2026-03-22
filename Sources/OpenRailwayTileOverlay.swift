@@ -4,7 +4,7 @@ import MapKit
 final class OpenRailwayTileOverlay: MKTileOverlay {
     private let subdomains = ["a", "b", "c"]
 
-    override init() {
+    init() {
         super.init(urlTemplate: nil)
         canReplaceMapContent = false
         tileSize = CGSize(width: 256, height: 256)

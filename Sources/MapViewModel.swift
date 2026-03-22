@@ -33,19 +33,23 @@ final class MapViewModel: ObservableObject {
         }
 
         searchTask?.cancel()
-        searchTask = Task { [weak self] @MainActor in
+        searchTask = Task { [weak self] in
             guard let self else { return }
             do {
                 let results = try await Network.nominatimSearch(query: trimmed)
-                self.searchResults = results
+                await MainActor.run {
+                    self.searchResults = results
 
-                if let first = results.first,
-                   let lat = Double(first.lat),
-                   let lon = Double(first.lon) {
-                    self.centerCoordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+                    if let first = results.first,
+                       let lat = Double(first.lat),
+                       let lon = Double(first.lon) {
+                        self.centerCoordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+                    }
                 }
             } catch {
-                self.searchResults = []
+                await MainActor.run {
+                    self.searchResults = []
+                }
             }
         }
     }
@@ -58,13 +62,13 @@ final class MapViewModel: ObservableObject {
 
     func requestStations(near coordinate: CLLocationCoordinate2D) {
         stationTask?.cancel()
-        stationTask = Task { [weak self] @MainActor in
+        stationTask = Task { [weak self] in
             guard let self else { return }
             try? await Task.sleep(nanoseconds: 500_000_000)
 
             do {
                 let elements = try await Network.overpassStations(near: coordinate, radiusMeters: 5000)
-                self.stationAnnotations = elements.compactMap { element in
+                let annotations = elements.compactMap { element in
                     guard let lat = element.lat, let lon = element.lon else { return nil }
                     let name = element.tags?["name"] ?? "Station"
                     let line = element.tags?["railway"] ?? "railway"
@@ -74,8 +78,13 @@ final class MapViewModel: ObservableObject {
                         coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon)
                     )
                 }
+                await MainActor.run {
+                    self.stationAnnotations = annotations
+                }
             } catch {
-                self.stationAnnotations = []
+                await MainActor.run {
+                    self.stationAnnotations = []
+                }
             }
         }
     }

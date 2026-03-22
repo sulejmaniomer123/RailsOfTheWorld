@@ -22,7 +22,7 @@ struct ContentView: View {
                     viewModel.requestStations(near: center)
                 }
             )
-            .environment(\.colorScheme, colorSchemeOverride)
+            .preferredColorScheme(colorSchemeOverride)
             .overlay(alignment: .topLeading) {
                 searchResultsPanel
             }
@@ -44,8 +44,8 @@ struct ContentView: View {
 
                     ScrollView {
                         VStack(alignment: .leading, spacing: 6) {
-                            ForEach(viewModel.searchResults.indices, id: \\.self) { index in
-                                let result = viewModel.searchResults[index]
+                            ForEach(Array(viewModel.searchResults.enumerated()), id: \\.offset) { item in
+                                let result = item.element
                                 Button(result.displayName) {
                                     viewModel.selectSearchResult(result)
                                 }
